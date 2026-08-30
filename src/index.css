@@ -1,0 +1,118 @@
+:root {
+  --cream: #fff6ec;
+  --paper: #fffaf3;
+  --ink: #4a3f3a;
+  --ink-soft: #8a7b74;
+  --pink: #ff8fab;
+  --pink-deep: #ff6f9c;
+  --pink-pale: #ffe3ec;
+  --mint: #8fe0c4;
+  --mint-pale: #e0f8ef;
+  --lavender: #c9b7f0;
+  --yellow: #ffd873;
+  --line: #f0c9d6;
+
+  color-scheme: light;
+  color: var(--ink);
+  background: var(--cream);
+  font: 16px/1.6 'M PLUS Rounded 1c', 'Yusei Magic', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background-color: var(--cream);
+  background-image: radial-gradient(var(--pink-pale) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Yusei Magic', 'M PLUS Rounded 1c', system-ui, sans-serif;
+  color: var(--ink);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--pink);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--pink-deep);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--pink-deep);
+}
+
+.btn--secondary {
+  background: var(--mint-pale);
+  color: #2e7a5f;
+  box-shadow: 0 4px 0 #bfe9d8;
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--mint);
+  color: #1e5a44;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 2px dashed var(--line);
+  box-shadow: none;
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--pink-pale);
+}
+
+.btn--small {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.btn--block {
+  width: 100%;
+}
