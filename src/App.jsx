@@ -18,6 +18,7 @@ function App() {
   const [ownedOnly, setOwnedOnly] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
   const [selectedPostcard, setSelectedPostcard] = useState(null)
+  const [editingPostcard, setEditingPostcard] = useState(null)
 
   const fetchPostcards = useCallback(async () => {
     setLoading(true)
@@ -49,7 +50,8 @@ function App() {
     const filtered = postcards.filter((p) => {
       if (ownedOnly && !p.owned) return false
       if (!kw) return true
-      return [p.idol_name, p.name, p.album_name].filter(Boolean).some((v) => v.toLowerCase().includes(kw))
+      const haystack = [p.group_name, p.idol_name, p.name, p.album_name, ...(p.tags || [])]
+      return haystack.filter(Boolean).some((v) => v.toLowerCase().includes(kw))
     })
 
     return [...filtered].sort((a, b) => {
@@ -67,6 +69,16 @@ function App() {
     const set = new Set(postcards.map((p) => p.idol_name).filter(Boolean))
     return [...set].sort((a, b) => a.localeCompare(b, 'ja'))
   }, [postcards])
+
+  const groupNames = useMemo(() => {
+    const set = new Set(postcards.map((p) => p.group_name).filter(Boolean))
+    return [...set].sort((a, b) => a.localeCompare(b, 'ja'))
+  }, [postcards])
+
+  const handleFilter = useCallback((value) => {
+    setKeyword(value)
+    setSelectedPostcard(null)
+  }, [])
 
   if (!isFullyConfigured) {
     return (
@@ -118,15 +130,41 @@ function App() {
       {loading && <p className="app__status">読みこみ中…</p>}
       {loadError && <p className="app__status app__status--error">読み込みエラー: {loadError}</p>}
       {!loading && !loadError && (
-        <Gallery postcards={visiblePostcards} onUpdated={handleUpdated} onSelect={setSelectedPostcard} />
+        <Gallery postcards={visiblePostcards} onUpdated={handleUpdated} onSelect={setSelectedPostcard} onFilter={handleFilter} />
       )}
 
       {showUpload && (
-        <UploadModal onClose={() => setShowUpload(false)} onCreated={handleCreated} idolNames={idolNames} />
+        <UploadModal
+          onClose={() => setShowUpload(false)}
+          onSaved={handleCreated}
+          idolNames={idolNames}
+          groupNames={groupNames}
+        />
+      )}
+
+      {editingPostcard && (
+        <UploadModal
+          postcard={editingPostcard}
+          onClose={() => setEditingPostcard(null)}
+          onSaved={(row) => {
+            handleUpdated(row)
+            setEditingPostcard(null)
+          }}
+          idolNames={idolNames}
+          groupNames={groupNames}
+        />
       )}
 
       {selectedPostcard && (
-        <PostcardDetail postcard={selectedPostcard} onClose={() => setSelectedPostcard(null)} />
+        <PostcardDetail
+          postcard={selectedPostcard}
+          onClose={() => setSelectedPostcard(null)}
+          onEdit={() => {
+            setEditingPostcard(selectedPostcard)
+            setSelectedPostcard(null)
+          }}
+          onFilter={handleFilter}
+        />
       )}
     </div>
   )

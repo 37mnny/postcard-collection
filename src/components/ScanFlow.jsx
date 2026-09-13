@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import CornerPicker from './CornerPicker'
 import { loadImageOntoCanvas, canvasToImageData, imageDataToCanvas, canvasToBlob } from '../lib/image'
 import { warpPerspective, estimateOutputSize } from '../lib/perspective'
@@ -10,7 +10,7 @@ const DEFAULT_CORNERS = [
   { x: 0.12, y: 0.88 },
 ]
 
-export default function ScanFlow({ onComplete, onCancel }) {
+export default function ScanFlow({ initialFile = null, onComplete, onCancel }) {
   const [step, setStep] = useState('pick') // pick | adjust | preview
   const [sourceCanvas, setSourceCanvas] = useState(null)
   const [sourceImageSrc, setSourceImageSrc] = useState(null)
@@ -33,11 +33,18 @@ export default function ScanFlow({ onComplete, onCancel }) {
     }
   }, [])
 
+  useEffect(() => {
+    if (initialFile) handleFile(initialFile)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const handleCorrect = useCallback(() => {
     if (!sourceCanvas) return
     setBusy(true)
-    // Let the "補正中…" state paint before the synchronous, CPU-heavy warp runs.
-    requestAnimationFrame(() => {
+    // setTimeout (not requestAnimationFrame) lets the "補正中…" state paint first —
+    // rAF callbacks are paused while the tab/page is hidden (e.g. switching to the
+    // camera app mid-flow on mobile), which would hang here forever.
+    setTimeout(() => {
       const srcImageData = canvasToImageData(sourceCanvas)
       const pixelCorners = corners.map((c) => ({
         x: c.x * sourceCanvas.width,
@@ -61,7 +68,9 @@ export default function ScanFlow({ onComplete, onCancel }) {
 
   return (
     <div className="scan-flow">
-      {step === 'pick' && (
+      {step === 'pick' && initialFile && busy && <p className="scan-flow__hint">読みこみ中…</p>}
+
+      {step === 'pick' && !(initialFile && busy) && (
         <div className="scan-flow__pick">
           <p className="scan-flow__hint">
             ポストカードをまっすぐ撮影してね📷 あとで角を微調整して台形補正するよ
